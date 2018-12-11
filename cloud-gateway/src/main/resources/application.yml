@@ -1,0 +1,43 @@
+server:
+  port: 8443                    # 由于使用的是webFlux，所以不能配置context-path
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: uqiansoft
+    keyStoreType: PKCS12
+    keyAlias: myalias
+
+spring:
+  application:
+    name: spring-cloud-gateway
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+  # 网关路由配置
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true                     # 是否启动默认路由规则：通过发现的服务id自动注册路由，默认为false
+      # 全局路由配置
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3                  # 重试次数，默认3
+            statusSeries: 500, 404      # 重试response code的系列，默认500
+
+
+# eureka客户端配置
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5              # 向服务中心请求服务注册信息的间隔时间，默认为30秒
+    service-url:                                    # 服务注册的请求地址
+      defaultZone: http://admin:123456@localhost:8761/eureka/
+
+
+# 指定logback配置文件
+logging:
+  config: classpath:log/logback-spring.xml
+
