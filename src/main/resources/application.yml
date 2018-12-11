@@ -1,0 +1,60 @@
+server:
+  port: 8443                    # 由于使用的是webFlux，所以不能配置context-path
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: uqiansoft
+    keyStoreType: PKCS12
+    keyAlias: myalias
+
+spring:
+  application:
+    name: spring-cloud-gateway
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+  # 网关路由配置
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true                     # 是否启动默认路由规则：通过发现的服务id自动注册路由，默认为false
+#          lower-case-service-id: true       # 是否通过小写服务id访问，开启以后服务id中不能有大写字符
+      # 全局路由配置
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3                  # 重试次数，默认3
+            statusSeries: 500, 404      # 重试response code的系列，默认500
+#            method: GET                 # 重试的request请求，默认GET
+
+  # redis配置，可以配置集群，限流默认通过redis实现
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    password: ayufan
+    lettuce:
+      pool:
+        max-active:  10             # 连接池最大连接数（使用负值表示没有限制），由于连接线程安全，所以池不需要很大
+        max-idle: 5                 # 连接池中的最大空闲连接
+        min-idle: 1                 # 连接池中的最小空闲连接
+        max-wait: -1ms              # 获取连接的最大等待时间（使用负值表示没有限制）
+    timeout: 10000ms            # redis连接超时时间（使用负值表示没有限制）
+
+
+# eureka客户端配置
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5              # 向服务中心请求服务注册信息的间隔时间，默认为30秒
+#    register-with-eureka: false                     # 是否向注册中心注册自己，默认true
+    service-url:                                    # 服务注册的请求地址
+      defaultZone: http://admin:123456@192.168.1.50:8761/eureka/
+
+
+# 指定logback配置文件
+logging:
+  config: classpath:log/logback-spring.xml
+
